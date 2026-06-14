@@ -78,6 +78,8 @@ export default function ServiceAnalysisPage() {
             endDate={endDate}
             employeeId={employeeId}
             salonId={salonId}
+            hideEmployeeFilter={true}
+            hideSalonFilter={true}
             onFilterChange={(filters) => {
               setStartDate(filters.startDate);
               setEndDate(filters.endDate);

@@ -46,27 +46,29 @@ export function ReportFilterBar({
   return (
     <div className="flex flex-col md:flex-row flex-wrap items-center justify-end gap-3 w-full">
       {/* Salon Filter */}
-      <div className="relative w-full md:w-48">
-        <select
-          value={salonId}
-          onChange={(e) => onFilterChange({ startDate, endDate, employeeId, salonId: e.target.value })}
-          className="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-sm text-gray-700 appearance-none focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all cursor-pointer shadow-sm"
-        >
-          <option value="">All Salons</option>
-          {salons.map((salon: any) => (
-            <option key={salon.id} value={salon.id}>{salon.name}</option>
-          ))}
-        </select>
-        <div className='absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none'>
-          {isLoadingSalons ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
-          ) : (
-            <svg className='h-4 w-4 text-gray-400' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-              <path d='M19 9l-7 7-7-7' strokeLinecap='round' strokeLinejoin='round' />
-            </svg>
-          )}
+      {!hideSalonFilter && (
+        <div className="relative w-full md:w-48">
+          <select
+            value={salonId}
+            onChange={(e) => onFilterChange({ startDate, endDate, employeeId, salonId: e.target.value })}
+            className="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-sm text-gray-700 appearance-none focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all cursor-pointer shadow-sm"
+          >
+            <option value="">All Salons</option>
+            {salons.map((salon: any) => (
+              <option key={salon.id} value={salon.id}>{salon.name}</option>
+            ))}
+          </select>
+          <div className='absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none'>
+            {isLoadingSalons ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
+            ) : (
+              <svg className='h-4 w-4 text-gray-400' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
+                <path d='M19 9l-7 7-7-7' strokeLinecap='round' strokeLinejoin='round' />
+              </svg>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Employee Filter */}
       {!hideEmployeeFilter && (
