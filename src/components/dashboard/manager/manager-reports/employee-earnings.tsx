@@ -14,7 +14,7 @@ import { ArrowDown, ArrowUp, Loader2 } from "lucide-react";
 import { startOfWeek, endOfWeek } from "date-fns";
 import { toZonedTime, format } from "date-fns-tz";
 import { useWeeklyEmployeeEarningsQuery } from "@/actions/report/useReport";
-import { HistoryWeekSelector } from "../../common/HistoryWeekSelector";
+import { ReportFilterBar } from "./ReportFilterBar";
 
 const TIMEZONE = 'America/Chicago';
 
@@ -25,10 +25,14 @@ export default function EmployeeEarningsPage() {
 
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
+  const [employeeId, setEmployeeId] = useState("");
+  const [salonId, setSalonId] = useState("");
   
   const { data: response, isLoading, isError, isFetching } = useWeeklyEmployeeEarningsQuery({ 
     startDate, 
-    endDate 
+    endDate,
+    employeeId,
+    salonId
   });
 
   const reportData = Array.isArray(response?.data) ? response.data : [];
@@ -66,8 +70,8 @@ export default function EmployeeEarningsPage() {
         </div>
       </div>
 
-      <div className='mb-6 sm:mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-        <div>
+      <div className='mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4'>
+        <div className="shrink-0">
           <h2 className='text-xl font-semibold sm:text-2xl'>
             Weekly Earnings Overview
           </h2>
@@ -75,16 +79,21 @@ export default function EmployeeEarningsPage() {
             Total earnings: ${totalEarnings}
           </p>
         </div>
-        <HistoryWeekSelector
-            startDate={startDate}
-            endDate={endDate}
-            onWeekChange={(start, end) => {
-              setStartDate(start);
-              setEndDate(end);
-            }}
-            showOverall={false}
-            className="w-full md:w-64"
-        />
+        <div className="w-full lg:w-auto overflow-visible">
+          <ReportFilterBar
+              startDate={startDate}
+              endDate={endDate}
+              employeeId={employeeId}
+              salonId={salonId}
+              onFilterChange={(filters) => {
+                setStartDate(filters.startDate);
+                setEndDate(filters.endDate);
+                setEmployeeId(filters.employeeId);
+                setSalonId(filters.salonId);
+              }}
+              showOverall={false}
+          />
+        </div>
       </div>
 
       {isLoading ? (

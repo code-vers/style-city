@@ -1,23 +1,23 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { reportService } from "@/lib/api/services/report.service";
+import { reportService, ReportFilters } from "@/lib/api/services/report.service";
 
-export const useWeeklyEmployeeEarningsQuery = (filters: { startDate?: string; endDate?: string }) => {
+export const useWeeklyEmployeeEarningsQuery = (filters: ReportFilters) => {
   return useQuery({
     queryKey: ["report", "weekly-employee-earnings", filters],
     queryFn: () => reportService.getWeeklyEmployeeEarnings(filters),
   });
 };
 
-export const useSalonRevenueQuery = (filters: { startDate?: string; endDate?: string }) => {
+export const useSalonRevenueQuery = (filters: ReportFilters) => {
   return useQuery({
     queryKey: ["report", "salon-revenue", filters],
     queryFn: () => reportService.getSalonRevenue(filters),
   });
 };
 
-export const useTopServicesQuery = (filters: { startDate?: string; endDate?: string }) => {
+export const useTopServicesQuery = (filters: ReportFilters) => {
   return useQuery({
     queryKey: ["report", "top-services", filters],
     queryFn: () => reportService.getTopServices(filters),

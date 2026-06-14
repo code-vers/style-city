@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useTopServicesQuery } from "@/actions/report/useReport";
-import { HistoryWeekSelector } from "../../common/HistoryWeekSelector";
+import { ReportFilterBar } from "./ReportFilterBar";
 
 const TIMEZONE = "America/Chicago";
 
@@ -22,13 +22,15 @@ export default function ServiceAnalysisPage() {
 
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
+  const [employeeId, setEmployeeId] = useState("");
+  const [salonId, setSalonId] = useState("");
 
   const {
     data: topServices,
     isLoading,
     isError,
     isFetching,
-  } = useTopServicesQuery({ startDate, endDate });
+  } = useTopServicesQuery({ startDate, endDate, employeeId, salonId });
 
   const exportToCSV = useCallback(() => {
     if (!topServices?.length) return;
@@ -63,22 +65,27 @@ export default function ServiceAnalysisPage() {
         </div>
       </div>
 
-      <div className='mb-6 sm:mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-        <div>
+      <div className='mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4'>
+        <div className="shrink-0">
           <h2 className='text-xl font-semibold sm:text-2xl'>Top Services</h2>
           <p className='text-sm text-gray-600 sm:text-base'>
             Most popular services this week
           </p>
         </div>
-        <HistoryWeekSelector
-          startDate={startDate}
-          endDate={endDate}
-          onWeekChange={(start, end) => {
-            setStartDate(start);
-            setEndDate(end);
-          }}
-          className='w-full md:w-64'
-        />
+        <div className="w-full lg:w-auto overflow-visible">
+          <ReportFilterBar
+            startDate={startDate}
+            endDate={endDate}
+            employeeId={employeeId}
+            salonId={salonId}
+            onFilterChange={(filters) => {
+              setStartDate(filters.startDate);
+              setEndDate(filters.endDate);
+              setEmployeeId(filters.employeeId);
+              setSalonId(filters.salonId);
+            }}
+          />
+        </div>
       </div>
 
       {isLoading ? (

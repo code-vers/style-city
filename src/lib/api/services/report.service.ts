@@ -23,16 +23,23 @@ export type TopServiceData = {
   revenue: number;
 };
 
+export interface ReportFilters {
+  startDate?: string;
+  endDate?: string;
+  employeeId?: string;
+  salonId?: string;
+}
+
 export const reportService = {
-  getWeeklyEmployeeEarnings: async (filters: { startDate?: string; endDate?: string }) => {
+  getWeeklyEmployeeEarnings: async (filters: ReportFilters) => {
     const response = await apiClient.get<{ data: WeeklyEarningsResponse }>("/reports/employee-earnings", { params: filters });
     return response.data.data;
   },
-  getSalonRevenue: async (filters: { startDate?: string; endDate?: string }) => {
+  getSalonRevenue: async (filters: ReportFilters) => {
     const response = await apiClient.get<{ data: SalonRevenueData[] }>("/reports/salon-revenue", { params: filters });
     return response.data.data;
   },
-  getTopServices: async (filters: { startDate?: string; endDate?: string }) => {
+  getTopServices: async (filters: ReportFilters) => {
     const response = await apiClient.get<{ data: TopServiceData[] }>("/reports/top-services", { params: filters });
     return response.data.data;
   },
