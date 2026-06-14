@@ -103,7 +103,7 @@ export function ReportFilterBar({
           onFilterChange({ startDate: start, endDate: end, employeeId, salonId });
         }}
         showOverall={showOverall}
-        className="w-full md:w-auto min-w-[200px]"
+        className="w-full md:w-auto min-w-50"
       />
     </div>
   );
