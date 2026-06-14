@@ -1,10 +1,12 @@
 export type DashboardPeriod = "WEEK" | "MONTH" | "OVERALL";
 
-export type DashboardOverviewMetrics = {
+export interface DashboardOverviewMetrics {
   weeklyEarnings: number;
   weeklyServicesDone: number;
   weeklyTips: number;
-};
+  grossRevenue?: number;
+  netSalonProfit?: number;
+}
 
 export type DashboardOverviewResponse = {
   period: DashboardPeriod;

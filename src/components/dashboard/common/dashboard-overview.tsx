@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BriefcaseBusiness, DollarSign, Loader2, Tags } from "lucide-react";
+import { BriefcaseBusiness, DollarSign, Loader2, Tags, TrendingUp, Landmark } from "lucide-react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,16 +17,16 @@ const PERIODS: Array<{ key: DashboardPeriod; label: string }> = [
   { key: "OVERALL", label: "Overall" },
 ];
 
-const CARD_CONFIG: Array<{
+const EMPLOYEE_CARDS: Array<{
   key: keyof DashboardOverviewMetrics;
   title: string;
-  icon: typeof DollarSign;
+  icon: any;
   tone: string;
   formatter: (value: number) => string;
 }> = [
   {
     key: "weeklyEarnings",
-    title: "Weekly Earnings",
+    title: "Earnings",
     icon: DollarSign,
     tone: "bg-pink-100 text-pink-600",
     formatter: (value) =>
@@ -34,18 +34,50 @@ const CARD_CONFIG: Array<{
   },
   {
     key: "weeklyServicesDone",
-    title: "Weekly Services Done",
+    title: "Services Done",
     icon: BriefcaseBusiness,
     tone: "bg-amber-100 text-amber-700",
     formatter: (value) => value.toLocaleString(),
   },
   {
     key: "weeklyTips",
-    title: "Weekly Tips",
+    title: "Tips",
     icon: Tags,
     tone: "bg-emerald-100 text-emerald-600",
     formatter: (value) =>
       `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  },
+];
+
+const ADMIN_CARDS: Array<{
+  key: keyof DashboardOverviewMetrics;
+  title: string;
+  icon: any;
+  tone: string;
+  formatter: (value: number) => string;
+}> = [
+  {
+    key: "grossRevenue",
+    title: "Gross Revenue",
+    icon: Landmark,
+    tone: "bg-blue-100 text-blue-600",
+    formatter: (value) =>
+      `$${(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  },
+  {
+    key: "weeklyServicesDone",
+    title: "Total Services Done",
+    icon: BriefcaseBusiness,
+    tone: "bg-amber-100 text-amber-700",
+    formatter: (value) => value.toLocaleString(),
+  },
+  {
+    key: "netSalonProfit",
+    title: "Net Salon Profit",
+    icon: TrendingUp,
+    tone: "bg-emerald-100 text-emerald-600",
+    formatter: (value) =>
+      `$${(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
   },
 ];
 
@@ -62,10 +94,15 @@ export default function DashboardOverview() {
     return null;
   }
 
+  const isAdminOrManager = user.role === "admin" || user.role === "manager" || user.role?.toUpperCase() === "ADMIN" || user.role?.toUpperCase() === "MANAGER";
+  const CARD_CONFIG = isAdminOrManager ? ADMIN_CARDS : EMPLOYEE_CARDS;
+
   const metrics = data?.metrics ?? {
     weeklyEarnings: 0,
     weeklyServicesDone: 0,
     weeklyTips: 0,
+    grossRevenue: 0,
+    netSalonProfit: 0,
   };
 
   const scopeLabel =
