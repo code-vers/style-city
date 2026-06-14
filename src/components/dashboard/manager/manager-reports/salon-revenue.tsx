@@ -52,7 +52,7 @@ export default function SalonRevenuePage() {
       ? salonRevenueData.map((item) => ({
           day: item.day,
           revenue: item.revenue,
-          expenses: item.expenses,
+          profit: item.profit,
         })) 
       : [],
     [salonRevenueData]
@@ -61,8 +61,8 @@ export default function SalonRevenuePage() {
   const exportToCSV = useCallback(() => {
     if (!chartData.length) return;
 
-    const headers = ["Day", "Revenue", "Expenses"];
-    const csvRows = chartData.map(row => `${row.day},${row.revenue},${row.expenses}`);
+    const headers = ["Day", "Gross Revenue", "Net Profit"];
+    const csvRows = chartData.map(row => `${row.day},${row.revenue},${row.profit}`);
     const csvContent = [headers.join(","), ...csvRows].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -102,12 +102,12 @@ export default function SalonRevenuePage() {
           <ReportFilterBar
             startDate={startDate}
             endDate={endDate}
-            employeeId={employeeId}
+            employeeId=""
             salonId={salonId}
+            hideEmployeeFilter={true}
             onFilterChange={(filters) => {
               setStartDate(filters.startDate);
               setEndDate(filters.endDate);
-              setEmployeeId(filters.employeeId);
               setSalonId(filters.salonId);
             }}
           />
@@ -147,15 +147,15 @@ export default function SalonRevenuePage() {
                 stroke='#4ECDC4'
                 strokeWidth={3}
                 dot={{ fill: "#4ECDC4", r: 5 }}
-                name='Revenue'
+                name='Gross Revenue'
               />
               <Line
                 type='natural'
-                dataKey='expenses'
-                stroke='#FFB74D'
+                dataKey='profit'
+                stroke='#4CAF50'
                 strokeWidth={3}
-                dot={{ fill: "#FFB74D", r: 5 }}
-                name='Expenses'
+                dot={{ fill: "#4CAF50", r: 5 }}
+                name='Net Profit'
               />
             </LineChart>
           </ResponsiveContainer>

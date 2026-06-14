@@ -14,7 +14,7 @@ export type WeeklyEarningsResponse = {
 export type SalonRevenueData = {
   day: string;
   revenue: number;
-  expenses: number;
+  profit: number;
 };
 
 export type TopServiceData = {
