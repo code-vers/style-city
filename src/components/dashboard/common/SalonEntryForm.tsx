@@ -439,7 +439,7 @@ export default function SalonEntryForm({
     const formattedSplits = splits.map((s) => ({
       employeeId: s.employeeId,
       totalPrice: Number(s.totalPrice) || 0,
-      tips: s.tips ? Number(s.tips) : undefined,
+      tips: s.tips === "" || s.tips === undefined ? 0 : Number(s.tips),
       splitPercentage: Number(s.percentage) || 0,
     }));
 
@@ -470,8 +470,8 @@ export default function SalonEntryForm({
       clientName: clientName || undefined,
       totalPrice: Number(totalPrice),
       actualPrice: actualServiceAmount,
-      tips: Number(tipValue) || undefined,
-      addHair: Number(addHair) || undefined,
+      tips: tipValue === "" ? 0 : Number(tipValue),
+      addHair: addHair === "" ? 0 : Number(addHair),
       notes: notes || undefined,
       isSplit: splitService,
       splitPercentage: mainSplitPercentage,
