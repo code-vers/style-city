@@ -70,6 +70,8 @@ const PayrollPage = () => {
         summary.totalOccurrences += row.totalOccurrences;
         summary.totalEarnings += row.earnings;
         summary.totalTips += row.totalTips;
+        summary.totalPaid += (row.paidEarnings || 0);
+        summary.totalUnpaid += (row.unpaidEarnings || 0);
         return summary;
       },
       {
@@ -77,6 +79,8 @@ const PayrollPage = () => {
         totalOccurrences: 0,
         totalEarnings: 0,
         totalTips: 0,
+        totalPaid: 0,
+        totalUnpaid: 0,
       },
     );
   }, [payrollData]);

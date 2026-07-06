@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { payrollService } from "@/lib/api/services/payroll.service";
-import type { PayrollQueryParams } from "./payroll.types";
+import type { PayrollQueryParams, MarkPaidPayload } from "./payroll.types";
 
 export const payrollKeys = {
   all: ["payroll"] as const,
@@ -22,5 +22,16 @@ export const useEmployeePayrollEntriesQuery = (employeeId: string, params: { sta
     queryKey: payrollKeys.employeeEntries(employeeId, params),
     queryFn: () => payrollService.getEmployeeEntries(employeeId, params),
     enabled: !!employeeId,
+  });
+};
+
+export const useMarkPaidMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: MarkPaidPayload) => payrollService.markPaid(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: payrollKeys.all });
+    },
   });
 };

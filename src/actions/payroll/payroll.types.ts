@@ -15,6 +15,14 @@ export interface PayrollRow extends Record<string, unknown> {
   commissionEarnings: number;
   totalTips: number;
   earnings: number;
+  paidEarnings: number;
+  unpaidEarnings: number;
+}
+
+export interface MarkPaidPayload {
+  employeeId: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface PayrollResponse {

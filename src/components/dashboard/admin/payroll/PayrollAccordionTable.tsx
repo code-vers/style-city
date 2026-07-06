@@ -2,8 +2,18 @@
 
 import React, { useState } from "react";
 import type { PayrollRow } from "@/actions/payroll/payroll.types";
+import { ChevronDown, ChevronRight, CheckCircle } from "lucide-react";
+import { useMarkPaidMutation } from "@/actions/payroll/usePayroll";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ExpandedEmployeeHistory } from "./ExpandedEmployeeHistory";
-import { ChevronDown, ChevronRight } from "lucide-react";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -31,6 +41,11 @@ export function PayrollAccordionTable({
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 10;
+  
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedEmployeeForPaid, setSelectedEmployeeForPaid] = useState<string | null>(null);
+
+  const markPaidMutation = useMarkPaidMutation();
 
   const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
   const paginated = data.slice((page - 1) * pageSize, page * pageSize);
@@ -39,8 +54,56 @@ export function PayrollAccordionTable({
     setExpandedRow((prev) => (prev === employeeId ? null : employeeId));
   };
 
+  const handleMarkPaidClick = (employeeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedEmployeeForPaid(employeeId);
+    setConfirmModalOpen(true);
+  };
+
+  const confirmMarkPaid = () => {
+    if (!selectedEmployeeForPaid) return;
+    
+    markPaidMutation.mutate({
+      employeeId: selectedEmployeeForPaid,
+      startDate,
+      endDate
+    }, {
+      onSuccess: () => {
+        toast.success("Successfully marked as paid!");
+        setConfirmModalOpen(false);
+        setSelectedEmployeeForPaid(null);
+      },
+      onError: () => toast.error("Failed to mark as paid.")
+    });
+  };
+
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
+      <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Payment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to mark all unpaid earnings for this employee in the selected timeframe as Paid? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <button 
+              onClick={() => setConfirmModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={confirmMarkPaid}
+              disabled={markPaidMutation.isPending}
+              className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {markPaidMutation.isPending ? "Processing..." : "Mark as Paid"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="p-4 md:p-6 pb-2 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Payroll</h2>
       </div>
@@ -55,13 +118,16 @@ export function PayrollAccordionTable({
               <th className="py-3 px-4 font-medium">Service Charge</th>
               <th className="py-3 px-4 font-medium">Commission Earnings</th>
               <th className="py-3 px-4 font-medium">Total Tips</th>
-              <th className="py-3 px-4 font-medium text-right">Earnings</th>
+              <th className="py-3 px-4 font-medium">Total Earnings</th>
+              <th className="py-3 px-4 font-medium text-green-700">Paid</th>
+              <th className="py-3 px-4 font-medium text-red-600">Unpaid</th>
+              <th className="py-3 px-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-gray-500">
+                <td colSpan={11} className="py-8 text-center text-gray-500">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
                     Loading payroll data...
@@ -70,7 +136,7 @@ export function PayrollAccordionTable({
               </tr>
             ) : paginated.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-gray-500">
+                <td colSpan={11} className="py-8 text-center text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
@@ -93,11 +159,22 @@ export function PayrollAccordionTable({
                       <td className="py-4 px-4 font-medium text-slate-700">{formatCurrency(row.serviceCharge)}</td>
                       <td className="py-4 px-4 font-medium text-sky-600">{formatCurrency(row.commissionEarnings)}</td>
                       <td className="py-4 px-4 font-medium text-green-600">{formatCurrency(row.totalTips)}</td>
-                      <td className="py-4 px-4 font-bold text-pink-600 text-right text-[15px]">{formatCurrency(row.earnings)}</td>
+                      <td className="py-4 px-4 font-bold text-gray-900 text-[15px]">{formatCurrency(row.earnings)}</td>
+                      <td className="py-4 px-4 font-medium text-green-700">{formatCurrency(row.paidEarnings || 0)}</td>
+                      <td className="py-4 px-4 font-medium text-red-600">{formatCurrency(row.unpaidEarnings || 0)}</td>
+                      <td className="py-4 px-4 text-right">
+                        <button 
+                          onClick={(e) => handleMarkPaidClick(row.employeeId, e)}
+                          disabled={!row.unpaidEarnings || markPaidMutation.isPending}
+                          className="px-3 py-1.5 text-xs font-semibold text-white bg-pink-600 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 ml-auto"
+                        >
+                          <CheckCircle size={14} /> Mark Paid
+                        </button>
+                      </td>
                     </tr>
                     {isExpanded && (
                       <tr className="bg-gray-50/30">
-                        <td colSpan={8} className="p-0 border-t border-gray-100">
+                        <td colSpan={11} className="p-0 border-t border-gray-100">
                           <div className="p-4 md:p-6 pb-8 border-l-2 border-pink-400">
                             <h3 className="text-sm font-semibold text-gray-900 mb-4 px-2">
                               Service History Breakdown for {row.employeeName}

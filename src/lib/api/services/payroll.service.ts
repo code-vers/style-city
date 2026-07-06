@@ -14,4 +14,9 @@ export const payrollService = {
     const response = await apiClient.get(`/payroll/employee/${employeeId}/entries`, { params });
     return response.data;
   },
+
+  markPaid: async (payload: { employeeId: string; startDate?: string; endDate?: string }) => {
+    const response = await apiClient.post("/payroll/mark-paid", payload);
+    return response.data;
+  },
 };
